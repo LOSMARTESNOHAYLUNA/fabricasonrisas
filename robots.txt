@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /gracias/
+Disallow: /api/
+Sitemap: https://fabricadesonrisas.com/sitemap.xml
