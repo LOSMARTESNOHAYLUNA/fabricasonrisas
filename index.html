@@ -1020,11 +1020,15 @@
       to { opacity: 1; transform: translateY(0); }
     }
     .reveal {
-      opacity: 0;
-      transform: translateY(30px);
+      opacity: 1;
+      transform: none;
       transition: opacity .6s ease, transform .6s ease;
     }
-    .reveal.visible { opacity: 1; transform: none; }
+    .js-ready .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    .reveal.visible { opacity: 1 !important; transform: none !important; }
 
     /* ─── RESPONSIVE ─── */
     @media (max-width: 1100px) {
@@ -1522,7 +1526,7 @@
         <a href="https://wa.me/34628639084?text=Hola!%20Quisiera%20reservar%20fecha%20para%20el%20cumplea%C3%B1os%20de%20mi%20peque%20%F0%9F%8E%89%20%C2%BFTienen%20disponibilidad%3F" class="btn-gold" target="_blank" rel="noopener">
           💬 Escribir por WhatsApp
         </a>
-        <a href="/cdn-cgi/l/email-protection#93f5f2f1e1faf0f2f7f6e0fcfde1fae0f2e0fafdf5fcd3f4fef2faffbdf0fcfe" class="btn-white-outline">
+        <a href="mailto:fabricadesonrisasinfo@gmail.com" class="btn-white-outline">
           ✉️ Enviar un email
         </a>
       </div>
@@ -1556,7 +1560,7 @@
         <h4>Contacto</h4>
         <ul>
           <li><a href="tel:+34628639084">📞 628 639 084</a></li>
-          <li><a href="/cdn-cgi/l/email-protection#02646360706b61636667716d6c706b7163716b6c646d42656f636b6e2c616d6f">✉️ Email</a></li>
+          <li><a href="mailto:fabricadesonrisasinfo@gmail.com">✉️ Email</a></li>
           <li><a href="https://maps.google.com/?q=Carretera+de+Carabanchel+19+Pozuelo+de+Alarcon" target="_blank" rel="noopener">📍 Cómo llegar</a></li>
           <li><a href="https://wa.me/34628639084" target="_blank" rel="noopener">💬 WhatsApp directo</a></li>
         </ul>
@@ -1584,7 +1588,10 @@
     </div>
   </div>
 
-  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+  <script>
+    // Activar animaciones solo cuando JS está listo
+    document.body.classList.add('js-ready');
+
     // NAV scroll
     window.addEventListener('scroll', () => {
       document.getElementById('mainNav').classList.toggle('scrolled', window.scrollY > 40);
@@ -1608,16 +1615,23 @@
       if (!isOpen) item.classList.add('open');
     }
 
-    // Scroll reveal
+    // Scroll reveal con fallback robusto
     const observer = new IntersectionObserver((entries) => {
-      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-    }, { threshold: 0.12 });
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+    }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+
     document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    // Fallback: si tras 1.5s hay elementos aún invisibles, hacerlos visibles
+    setTimeout(() => {
+      document.querySelectorAll('.reveal:not(.visible)').forEach(el => el.classList.add('visible'));
+    }, 1500);
 
     // Confetti
     function createConfetti() {
       const colors = ['#6D28D9','#F59E0B','#EC4899','#10B981','#3B82F6','#FCD34D'];
       const hero = document.querySelector('.hero-bg');
+      if (!hero) return;
       for (let i = 0; i < 18; i++) {
         const c = document.createElement('div');
         c.className = 'confetti';
@@ -1638,4 +1652,12 @@
       localStorage.setItem('cookieConsent', type);
       document.getElementById('cookieBanner').classList.remove('show');
     }
-    window.addEventL
+    window.addEventListener('load', () => {
+      if (!localStorage.getItem('cookieConsent')) {
+        setTimeout(() => document.getElementById('cookieBanner').classList.add('show'), 1500);
+      }
+    });
+  </script>
+
+</body>
+</html>
